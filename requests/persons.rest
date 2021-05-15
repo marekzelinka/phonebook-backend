@@ -1,0 +1,16 @@
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Marek Yelinka",
+  "number": "040-2456768"
+}
+
+###
+GET http://localhost:3001/api/persons
+
+###
+GET http://localhost:3001/api/persons/4
+
+###
+DELETE http://localhost:3001/api/persons/4
