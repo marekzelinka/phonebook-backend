@@ -10,7 +10,16 @@ Content-Type: application/json
 GET http://localhost:3001/api/persons
 
 ###
-GET http://localhost:3001/api/persons/60a141a6b72ada146c326861
+GET http://localhost:3001/api/persons/60a141a6b72ada146c326860
+
+###
+PUT http://localhost:3001/api/persons/60a141a6b72ada146c326860
+Content-Type: application/json
+
+{
+  "name": "Marek Zelinka",
+  "number": "041-123456"
+}
 
 ###
 DELETE http://localhost:3001/api/persons/60a130774b03173a58a2d78d
