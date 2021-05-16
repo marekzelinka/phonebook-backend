@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 const config = require('../config')
 
 console.log('connecting to database', config.MONGODB_URI)
@@ -13,9 +14,11 @@ mongoose
   .catch((error) => console.log('error connecting to database:', error.message))
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: { type: String, unique: true, required: true },
+  number: { type: String, required: true },
 })
+
+personSchema.plugin(uniqueValidator)
 
 personSchema.set('toJSON', {
   transform: (_doc, ret) => {
