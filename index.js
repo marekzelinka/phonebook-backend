@@ -25,7 +25,7 @@ app.use(
   )
 )
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (body.name === undefined) {
@@ -43,27 +43,49 @@ app.post('/api/persons', (req, res) => {
     number: body.number,
   })
 
-  person.save().then((savedPerson) => res.status(201).json(savedPerson))
+  person
+    .save()
+    .then((savedPerson) => res.status(201).json(savedPerson))
+    .catch((error) => next(error))
 })
 
-app.get('/api/persons', (_req, res) => {
-  Person.find().then((persons) => res.json(persons))
+app.get('/api/persons', (_req, res, next) => {
+  Person.find()
+    .then((persons) => res.json(persons))
+    .catch((error) => next(error))
 })
 
-app.get('/api/persons/:id', (req, res) => {
-  Person.findById(req.params.id).then((person) => {
-    if (person === null) {
-      res.status(404).end()
-      return
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((person) => {
+      if (person === null) {
+        res.status(404).end()
+        return
+      }
 
-    res.json(person)
-  })
+      res.json(person)
+    })
+    .catch((error) => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-  Person.findByIdAndDelete(req.params.id).then(() => res.status(204).end())
+app.delete('/api/persons/:id', (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then(() => res.status(204).end())
+    .catch((error) => next(error))
 })
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    res.status(400).json({ error: 'malformatted id' })
+    return
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 app.listen(config.PORT, () =>
   console.log(`Server runnning on port ${config.PORT}`)
