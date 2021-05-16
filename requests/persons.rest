@@ -2,8 +2,8 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "Marek Yelinka",
-  "number": "040-2456768"
+  "name": "Marek Hellsman",
+  "number": "040-241235"
 }
 
 ###
@@ -22,4 +22,4 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3001/api/persons/60a130774b03173a58a2d78d
+DELETE http://localhost:3001/api/persons/60a159b0b6ab212cc8d311d3
