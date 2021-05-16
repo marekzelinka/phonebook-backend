@@ -2,7 +2,7 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "Marek Yelinka",
+  "name": "Marek Zelinka",
   "number": "040-2456768"
 }
 
@@ -10,7 +10,7 @@ Content-Type: application/json
 GET http://localhost:3001/api/persons
 
 ###
-GET http://localhost:3001/api/persons/60a0ec2b3b7c8e3af41a5f0c
+GET http://localhost:3001/api/persons/60a12fa505a5090bc4a8acfd
 
 ###
-DELETE http://localhost:3001/api/persons/60a0ec2b3b7c8e3af41a5f0c
+DELETE http://localhost:3001/api/persons/60a0eb8ae22dbb1878cf5d57
