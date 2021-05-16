@@ -1,30 +1,8 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-
-let persons = [
-  {
-    name: 'Marek Zelinka',
-    number: '040-1257964',
-    id: 4,
-  },
-  {
-    name: 'Tom Holland',
-    number: '040-2456786',
-    id: 5,
-  },
-  {
-    name: 'Dan Abramov 2',
-    number: '040-124675',
-    id: 6,
-  },
-]
-
-const generateId = () => {
-  const maxId =
-    persons.length > 0 ? Math.max(...persons.map((person) => person.id)) : 0
-  return maxId + 1
-}
+const config = require('./config')
+const Person = require('./models/person')
 
 const app = express()
 
@@ -85,22 +63,25 @@ app.post('/api/persons', (req, res) => {
   res.status(201).json(person)
 })
 
-app.get('/api/persons', (_req, res) => res.json(persons))
+app.get('/api/persons', (_req, res) => {
+  Person.find().then((persons) => res.json(persons))
+})
 
 app.get('/api/persons/:id', (req, res) => {
-  const person = persons.find((person) => person.id === Number(req.params.id))
-  if (person === undefined) {
-    res.status(404).end()
-    return
-  }
+  Person.findById(req.params.id).then((person) => {
+    if (person === null) {
+      res.status(404).end()
+      return
+    }
 
-  res.json(person)
+    res.json(person)
+  })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  persons = persons.filter((person) => person.id !== Number(req.params.id))
-  res.status(204).end()
+  Person.findByIdAndDelete(req.params.id).then(() => res.status(204).end())
 })
 
-const PORT = process.env.PORT ?? 3001
-app.listen(PORT, () => console.log(`Server runnning on port ${PORT}`))
+app.listen(config.PORT, () =>
+  console.log(`Server runnning on port ${config.PORT}`)
+)
