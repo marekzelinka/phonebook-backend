@@ -87,7 +87,7 @@ const errorHandler = (error, _req, res, next) => {
   if (error.name === 'CastError') {
     res.status(400).json({ error: 'malformatted id' })
     return
-  } else if ((error.name = 'ValidationError')) {
+  } else if (error.name === 'ValidationError') {
     res.status(400).json({ error: error.message })
     return
   }
