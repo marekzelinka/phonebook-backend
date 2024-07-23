@@ -1,7 +1,11 @@
 import mongoose from 'mongoose'
 
 const personSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    minLength: 3,
+  },
   number: String,
 })
 personSchema.set('toJSON', {

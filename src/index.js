@@ -94,10 +94,6 @@ async function run() {
     try {
       const { name, number } = req.body
 
-      if (!name) {
-        return res.status(400).json({ error: 'name is missing' })
-      }
-
       if (!number) {
         return res.status(400).json({ error: 'number is missing' })
       }
@@ -109,7 +105,7 @@ async function run() {
       }
 
       const person = new Person({ name, number })
-      const savedPerson = await person.save()
+      const savedPerson = await person.save({ validateBeforeSave: true })
 
       res.status(201).json(savedPerson)
     } catch (error) {
@@ -119,25 +115,22 @@ async function run() {
 
   app.put('/api/persons/:id', async (req, res, next) => {
     try {
+      const id = req.params.id
       const { name, number } = req.body
 
-      if (!name) {
-        return res.status(400).json({ error: 'name is missing' })
+      const person = await Person.findById(id)
+
+      if (!person) {
+        return res.status(404).end()
       }
 
       if (!number) {
         return res.status(400).json({ error: 'number is missing' })
       }
 
-      const person = await Person.findOne({ name })
-
-      if (!person) {
-        return res.status(404).end()
-      }
-
       person.name = name
       person.number = number
-      const savedPerson = await person.save()
+      const savedPerson = await person.save({ validateBeforeSave: true })
 
       res.status(201).json(savedPerson)
     } catch (error) {
@@ -156,6 +149,8 @@ function errorHandler(error, _req, res, next) {
 
   if (error.name === 'CastError') {
     return res.status(400).json({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
   }
 
   next(error)
