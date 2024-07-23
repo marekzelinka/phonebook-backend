@@ -18,8 +18,8 @@ POST http://localhost:3000/api/persons
 Content-Type: application/json
 
 {
-  "name": "Marek Zelinka",
-  "number": "040-123576"
+  "name": "Dan Abramov",
+  "number": "040-22334455"
 }
 
 ### Update person
