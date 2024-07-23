@@ -1,3 +1,4 @@
+import cors from 'cors'
 import express from 'express'
 import morgan from 'morgan'
 
@@ -33,6 +34,7 @@ function generatePersonId() {
 
 express()
   .use(express.json())
+  .use(cors())
   .use(
     morgan((tokens, req, res) => {
       let body = process.env.NODE_ENV === 'development' ? req.body : {}
