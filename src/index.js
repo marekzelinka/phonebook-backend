@@ -49,4 +49,9 @@ express()
 
     res.json(person)
   })
+  .delete('/api/persons/:id', (req, res) => {
+    let id = req.params.id
+    persons = persons.filter((person) => person.id !== id)
+    res.status(204).end()
+  })
   .listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
