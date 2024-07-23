@@ -1,0 +1,2 @@
+### Get persons
+GET http://localhost:3000/api/persons
