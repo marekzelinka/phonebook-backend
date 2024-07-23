@@ -5,10 +5,13 @@ GET http://localhost:3000/info
 GET http://localhost:3000/api/persons
 
 ### Get single person
-GET http://localhost:3000/api/persons/1
+GET http://localhost:3000/api/persons/669fafd0d4884d42daad8ecb
+
+### Get single nonexisting person
+GET http://localhost:3000/api/persons/669fafd0d4884d42daad8ecc
 
 ### Delete person
-DELETE http://localhost:3000/api/persons/1
+DELETE http://localhost:3000/api/persons/669fafeb67e28cb07c3d8464
 
 ### Create person
 POST http://localhost:3000/api/persons

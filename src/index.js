@@ -1,72 +1,64 @@
 import cors from 'cors'
 import express from 'express'
+import mongoose from 'mongoose'
 import morgan from 'morgan'
+import { Person } from './models/person.js'
 
 const PORT = process.env.PORT
+const MONGODB_URI = process.env.MONGODB_URI
 
-let persons = [
-  {
-    id: '1',
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: '2',
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: '3',
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: '4',
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-]
+const app = express()
 
-function generatePersonId() {
-  let id = Math.floor(Math.random() * 10_000)
-  return String(id)
-}
+app.use(express.json())
+app.use(cors())
+app.use(
+  morgan((tokens, req, res) => {
+    let body = process.env.NODE_ENV === 'development' ? req.body : {}
 
-express()
-  .use(express.json())
-  .use(cors())
-  .use(
-    morgan((tokens, req, res) => {
-      let body = process.env.NODE_ENV === 'development' ? req.body : {}
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'),
+      '-',
+      tokens['response-time'](req, res),
+      'ms',
+      JSON.stringify(body),
+    ].join(' ')
+  }),
+)
 
-      return [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'),
-        '-',
-        tokens['response-time'](req, res),
-        'ms',
-        JSON.stringify(body),
-      ].join(' ')
-    }),
-  )
-  .get('/info', (_req, res) => {
+run().catch(console.dir)
+
+async function run() {
+  const clientOptions = {
+    serverApi: { version: '1', strict: true, deprecationErrors: true },
+  }
+  await mongoose.connect(MONGODB_URI, clientOptions)
+  await mongoose.connection.db.admin().command({ ping: 1 })
+  console.log('Pinged your deployment. You successfully connected to MongoDB!')
+
+  app.get('/info', async (_req, res) => {
+    const personCount = await Person.countDocuments()
+
     res.send(`
-      <p>
-        Phonebook has info for ${persons.length} ${persons.length > 1 ? 'people' : 'person'}
-      </p>
-      <p>
-        ${new Date()}
-      </p>
-    `)
+        <p>
+          Phonebook has info for ${personCount} ${personCount > 1 ? 'people' : 'person'}
+        </p>
+        <p>
+          ${new Date()}
+        </p>
+      `)
   })
-  .get('/api/persons', (_req, res) => {
+
+  app.get('/api/persons', async (_req, res) => {
+    const persons = await Person.find()
     res.json(persons)
   })
-  .get('/api/persons/:id', (req, res) => {
-    let id = req.params.id
-    let person = persons.find((person) => person.id === id)
+
+  app.get('/api/persons/:id', async (req, res) => {
+    const id = req.params.id
+    const person = await Person.findById(id)
 
     if (!person) {
       return res.status(404).end()
@@ -74,13 +66,16 @@ express()
 
     res.json(person)
   })
-  .delete('/api/persons/:id', (req, res) => {
-    let id = req.params.id
-    persons = persons.filter((person) => person.id !== id)
+
+  app.delete('/api/persons/:id', async (req, res) => {
+    const id = req.params.id
+    await Person.findByIdAndDelete(id)
+
     res.status(204).end()
   })
-  .post('/api/persons', (req, res) => {
-    let { name, number } = req.body
+
+  app.post('/api/persons', async (req, res) => {
+    const { name, number } = req.body
 
     if (!name) {
       return res.status(400).json({ error: 'name is missing' })
@@ -90,14 +85,17 @@ express()
       return res.status(400).json({ error: 'number is missing' })
     }
 
-    let existingPerson = persons.find((person) => person.name === name)
+    const existingPerson = await Person.findOne({ name })
 
     if (existingPerson) {
       return res.status(400).json({ error: 'name must be unique' })
     }
 
-    let person = { name, number, id: generatePersonId() }
-    persons = persons.concat(person)
-    res.status(201).json(person)
+    const person = new Person({ name, number })
+    const savedPerson = await person.save()
+
+    res.status(201).json(savedPerson)
   })
-  .listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
+
+  app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
+}
