@@ -8,7 +8,7 @@ GET http://localhost:3000/api/persons
 GET http://localhost:3000/api/persons/669fbd5f00540f8b0cc51436
 
 ### Get single nonexisting person
-GET http://localhost:3000/api/persons/669fafd0d4884d42daad8ecc
+GET http://localhost:3000/api/persons/1
 
 ### Delete person
 DELETE http://localhost:3000/api/persons/669fafeb67e28cb07c3d8464

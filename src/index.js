@@ -38,88 +38,125 @@ async function run() {
   await mongoose.connection.db.admin().command({ ping: 1 })
   console.log('Pinged your deployment. You successfully connected to MongoDB!')
 
-  app.get('/info', async (_req, res) => {
-    const personCount = await Person.countDocuments()
+  app.get('/info', async (_req, res, next) => {
+    try {
+      const personCount = await Person.countDocuments()
 
-    res.send(`
+      res.send(`
         <p>
-          Phonebook has info for ${personCount} ${personCount > 1 ? 'people' : 'person'}
+        Phonebook has info for ${personCount} ${personCount > 1 ? 'people' : 'person'}
         </p>
         <p>
-          ${new Date()}
+        ${new Date()}
         </p>
-      `)
+        `)
+    } catch (error) {
+      next(error)
+    }
   })
 
-  app.get('/api/persons', async (_req, res) => {
-    const persons = await Person.find()
-    res.json(persons)
+  app.get('/api/persons', async (_req, res, next) => {
+    try {
+      const persons = await Person.find()
+      res.json(persons)
+    } catch (error) {
+      next(error)
+    }
   })
 
-  app.get('/api/persons/:id', async (req, res) => {
-    const id = req.params.id
-    const person = await Person.findById(id)
+  app.get('/api/persons/:id', async (req, res, next) => {
+    try {
+      const id = req.params.id
+      const person = await Person.findById(id)
 
-    if (!person) {
-      return res.status(404).end()
+      if (!person) {
+        return res.status(404).end()
+      }
+
+      res.json(person)
+    } catch (error) {
+      next(error)
     }
-
-    res.json(person)
   })
 
-  app.delete('/api/persons/:id', async (req, res) => {
-    const id = req.params.id
-    await Person.findByIdAndDelete(id)
+  app.delete('/api/persons/:id', async (req, res, next) => {
+    try {
+      const id = req.params.id
+      await Person.findByIdAndDelete(id)
 
-    res.status(204).end()
+      res.status(204).end()
+    } catch (error) {
+      next(error)
+    }
   })
 
-  app.post('/api/persons', async (req, res) => {
-    const { name, number } = req.body
+  app.post('/api/persons', async (req, res, next) => {
+    try {
+      const { name, number } = req.body
 
-    if (!name) {
-      return res.status(400).json({ error: 'name is missing' })
+      if (!name) {
+        return res.status(400).json({ error: 'name is missing' })
+      }
+
+      if (!number) {
+        return res.status(400).json({ error: 'number is missing' })
+      }
+
+      const existingPerson = await Person.findOne({ name })
+
+      if (existingPerson) {
+        return res.status(400).json({ error: 'name must be unique' })
+      }
+
+      const person = new Person({ name, number })
+      const savedPerson = await person.save()
+
+      res.status(201).json(savedPerson)
+    } catch (error) {
+      next(error)
     }
-
-    if (!number) {
-      return res.status(400).json({ error: 'number is missing' })
-    }
-
-    const existingPerson = await Person.findOne({ name })
-
-    if (existingPerson) {
-      return res.status(400).json({ error: 'name must be unique' })
-    }
-
-    const person = new Person({ name, number })
-    const savedPerson = await person.save()
-
-    res.status(201).json(savedPerson)
   })
 
-  app.put('/api/persons/:id', async (req, res) => {
-    const { name, number } = req.body
+  app.put('/api/persons/:id', async (req, res, next) => {
+    try {
+      const { name, number } = req.body
 
-    if (!name) {
-      return res.status(400).json({ error: 'name is missing' })
+      if (!name) {
+        return res.status(400).json({ error: 'name is missing' })
+      }
+
+      if (!number) {
+        return res.status(400).json({ error: 'number is missing' })
+      }
+
+      const person = await Person.findOne({ name })
+
+      if (!person) {
+        return res.status(404).end()
+      }
+
+      person.name = name
+      person.number = number
+      const savedPerson = await person.save()
+
+      res.status(201).json(savedPerson)
+    } catch (error) {
+      next(error)
     }
-
-    if (!number) {
-      return res.status(400).json({ error: 'number is missing' })
-    }
-
-    const person = await Person.findOne({ name })
-
-    if (!person) {
-      return res.status(404).end()
-    }
-
-    person.name = name
-    person.number = number
-    const savedPerson = await person.save()
-
-    res.status(201).json(savedPerson)
   })
+
+  // errorHandler needs to be the last loaded middleware
+  app.use(errorHandler)
 
   app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
+}
+
+function errorHandler(error, _req, res, next) {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
 }
