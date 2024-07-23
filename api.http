@@ -5,7 +5,7 @@ GET http://localhost:3000/info
 GET http://localhost:3000/api/persons
 
 ### Get single person
-GET http://localhost:3000/api/persons/669fafd0d4884d42daad8ecb
+GET http://localhost:3000/api/persons/669fbd5f00540f8b0cc51436
 
 ### Get single nonexisting person
 GET http://localhost:3000/api/persons/669fafd0d4884d42daad8ecc
@@ -20,4 +20,13 @@ Content-Type: application/json
 {
   "name": "Marek Zelinka",
   "number": "040-123576"
+}
+
+### Update person
+PUT http://localhost:3000/api/persons/669fbd5f00540f8b0cc51436
+Content-Type: application/json
+
+{
+  "name": "Marek Zelinka",
+  "number": "040-784512"
 }

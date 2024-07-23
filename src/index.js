@@ -97,5 +97,29 @@ async function run() {
     res.status(201).json(savedPerson)
   })
 
+  app.put('/api/persons/:id', async (req, res) => {
+    const { name, number } = req.body
+
+    if (!name) {
+      return res.status(400).json({ error: 'name is missing' })
+    }
+
+    if (!number) {
+      return res.status(400).json({ error: 'number is missing' })
+    }
+
+    const person = await Person.findOne({ name })
+
+    if (!person) {
+      return res.status(404).end()
+    }
+
+    person.name = name
+    person.number = number
+    const savedPerson = await person.save()
+
+    res.status(201).json(savedPerson)
+  })
+
   app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
 }
