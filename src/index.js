@@ -26,6 +26,16 @@ let persons = [
 ]
 
 express()
+  .get('/info', (_req, res) => {
+    res.send(`
+      <p>
+        Phonebook has info for ${persons.length} ${persons.length > 1 ? 'people' : 'person'}
+      </p>
+      <p>
+        ${new Date()}
+      </p>
+    `)
+  })
   .get('/api/persons', (_req, res) => {
     res.json(persons)
   })
