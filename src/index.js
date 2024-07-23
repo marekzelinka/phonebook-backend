@@ -62,6 +62,21 @@ express()
   })
   .post('/api/persons', (req, res) => {
     let { name, number } = req.body
+
+    if (!name) {
+      return res.status(400).json({ error: 'name is missing' })
+    }
+
+    if (!number) {
+      return res.status(400).json({ error: 'number is missing' })
+    }
+
+    let existingPerson = persons.find((person) => person.name === name)
+
+    if (existingPerson) {
+      return res.status(400).json({ error: 'name must be unique' })
+    }
+
     let person = { name, number, id: generatePersonId() }
     persons = persons.concat(person)
     res.status(201).json(person)
