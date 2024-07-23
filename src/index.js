@@ -1,4 +1,5 @@
 import express from 'express'
+import morgan from 'morgan'
 
 const PORT = 3000
 
@@ -32,6 +33,7 @@ function generatePersonId() {
 
 express()
   .use(express.json())
+  .use(morgan('tiny'))
   .get('/info', (_req, res) => {
     res.send(`
       <p>
