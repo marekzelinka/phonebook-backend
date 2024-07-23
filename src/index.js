@@ -25,7 +25,13 @@ let persons = [
   },
 ]
 
+function generatePersonId() {
+  let id = Math.floor(Math.random() * 10_000)
+  return String(id)
+}
+
 express()
+  .use(express.json())
   .get('/info', (_req, res) => {
     res.send(`
       <p>
@@ -53,5 +59,11 @@ express()
     let id = req.params.id
     persons = persons.filter((person) => person.id !== id)
     res.status(204).end()
+  })
+  .post('/api/persons', (req, res) => {
+    let { name, number } = req.body
+    let person = { name, number, id: generatePersonId() }
+    persons = persons.concat(person)
+    res.status(201).json(person)
   })
   .listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))

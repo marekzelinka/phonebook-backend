@@ -9,3 +9,12 @@ GET http://localhost:3000/api/persons/1
 
 ### Delete person
 DELETE http://localhost:3000/api/persons/1
+
+### Create person
+POST http://localhost:3000/api/persons
+Content-Type: application/json
+
+{
+  "name": "Marek Zelinka",
+  "number": "040-123576"
+}
