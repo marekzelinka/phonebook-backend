@@ -2,7 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import morgan from 'morgan'
 
-const PORT = 3000
+const PORT = process.env.PORT
 
 let persons = [
   {
