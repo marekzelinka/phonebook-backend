@@ -39,4 +39,14 @@ express()
   .get('/api/persons', (_req, res) => {
     res.json(persons)
   })
+  .get('/api/persons/:id', (req, res) => {
+    let id = req.params.id
+    let person = persons.find((person) => person.id === id)
+
+    if (!person) {
+      return res.status(404).end()
+    }
+
+    res.json(person)
+  })
   .listen(PORT, () => console.log(`🚀 Live on port ${PORT}`))
