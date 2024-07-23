@@ -33,7 +33,22 @@ function generatePersonId() {
 
 express()
   .use(express.json())
-  .use(morgan('tiny'))
+  .use(
+    morgan((tokens, req, res) => {
+      let body = process.env.NODE_ENV === 'development' ? req.body : {}
+
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'),
+        '-',
+        tokens['response-time'](req, res),
+        'ms',
+        JSON.stringify(body),
+      ].join(' ')
+    }),
+  )
   .get('/info', (_req, res) => {
     res.send(`
       <p>
